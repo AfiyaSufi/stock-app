@@ -225,13 +225,19 @@ export function ExtraInsights({ rows }: { rows: Row[] }) {
           <input type="date" value={rangeTo} onChange={(e) => setTo(e.target.value)} />
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-        <div style={{ width: '100%', height: 320 }}>
-          <Line data={maData} options={maOptions as any} />
+      <div className="grid grid-2">
+        <div className="card">
+          <div className="section-title">Close and moving averages</div>
+          <div style={{ width: '100%', height: 320 }}>
+            <Line data={maData} options={maOptions as any} />
+          </div>
           <div className="caption">Close with 7-day and 30-day moving averages (time on X, price on Y).</div>
         </div>
-        <div style={{ width: '100%', height: 260 }}>
-          <Bar data={volData} options={volOptions as any} />
+        <div className="card">
+          <div className="section-title">Volume histogram</div>
+          <div style={{ width: '100%', height: 260 }}>
+            <Bar data={volData} options={volOptions as any} />
+          </div>
           <div className="caption">Histogram of daily traded volume (bucketed into 10 ranges).</div>
         </div>
       </div>

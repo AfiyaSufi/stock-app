@@ -73,19 +73,31 @@ export function StockChart({ rows }: { rows: Row[] }) {
       x: {
         type: 'time' as const,
         time: { unit: 'day' as const },
-        ticks: { autoSkip: true, maxTicksLimit: 10 },
+        ticks: { autoSkip: true, maxTicksLimit: 8 },
       },
       y1: {
         type: 'linear' as const,
         position: 'left' as const,
         grid: { drawOnChartArea: true },
         title: { display: true, text: 'Close' },
+        suggestedMin: 0,
+        ticks: {
+          callback: (v: any) => {
+            try { return Number(v).toLocaleString() } catch { return v }
+          },
+        },
       },
       y2: {
         type: 'linear' as const,
         position: 'right' as const,
         grid: { drawOnChartArea: false },
         title: { display: true, text: 'Volume' },
+        beginAtZero: true,
+        ticks: {
+          callback: (v: any) => {
+            try { return Number(v).toLocaleString() } catch { return v }
+          },
+        },
       },
     },
   }
