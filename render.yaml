@@ -21,10 +21,8 @@ services:
       - key: STOCK_APP_DB
         value: /tmp/stock.db
 
-  - type: web
+  - type: static_site
     name: stock-app-frontend
-    env: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
