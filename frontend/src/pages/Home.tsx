@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchStocks } from '../api/client'
+import { StockChart } from '../components/StockChart'
 
 type StockRow = Record<string, string | number | null>
 
@@ -24,10 +25,25 @@ export function Home() {
     }
   }, [])
 
-  const columns = useMemo(() => {
-    if (data.length === 0) return [] as string[]
-    return Object.keys(data[0])
+  const tradeCodes = useMemo(() => {
+    const set = new Set<string>()
+    data.forEach((r) => {
+      if (r.trade_code) set.add(String(r.trade_code))
+    })
+    return Array.from(set).sort()
   }, [data])
+
+  const [selectedCode, setSelectedCode] = useState<string>('')
+
+  const filtered = useMemo(() => {
+    if (!selectedCode) return data
+    return data.filter((r) => String(r.trade_code) === selectedCode)
+  }, [data, selectedCode])
+
+  const columns = useMemo(() => {
+    if (filtered.length === 0) return [] as string[]
+    return Object.keys(filtered[0])
+  }, [filtered])
 
   return (
     <div style={{ padding: 24, fontFamily: 'system-ui, Arial, sans-serif' }}>
@@ -38,6 +54,29 @@ export function Home() {
       )}
       {!loading && !error && (
         <div style={{ overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <label>
+              Trade code:
+              <select
+                value={selectedCode}
+                onChange={(e) => setSelectedCode(e.target.value)}
+                style={{ marginLeft: 8 }}
+              >
+                <option value="">All</option>
+                {tradeCodes.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {/* Chart */}
+          <StockChart rows={filtered as any[]} />
+          <div style={{ height: 16 }} />
+
+          {/* Table */}
           <table style={{ borderCollapse: 'collapse', width: '100%' }}>
             <thead>
               <tr>
@@ -59,7 +98,7 @@ export function Home() {
               </tr>
             </thead>
             <tbody>
-              {data.map((row, i) => (
+              {filtered.map((row, i) => (
                 <tr key={i}>
                   {columns.map((c) => (
                     <td
@@ -73,7 +112,7 @@ export function Home() {
               ))}
             </tbody>
           </table>
-          <p style={{ marginTop: 12, color: '#666' }}>Rows: {data.length}</p>
+          <p style={{ marginTop: 12, color: '#666' }}>Rows: {filtered.length}</p>
         </div>
       )}
     </div>
