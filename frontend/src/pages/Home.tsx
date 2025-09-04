@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchStocks } from '../api/client'
 import { StockChart } from '../components/StockChart'
+import { EditableTable } from '../components/EditableTable'
 
 type StockRow = Record<string, string | number | null>
 
@@ -40,10 +41,7 @@ export function Home() {
     return data.filter((r) => String(r.trade_code) === selectedCode)
   }, [data, selectedCode])
 
-  const columns = useMemo(() => {
-    if (filtered.length === 0) return [] as string[]
-    return Object.keys(filtered[0])
-  }, [filtered])
+  // columns no longer needed here; EditableTable defines its own columns
 
   return (
     <div style={{ padding: 24, fontFamily: 'system-ui, Arial, sans-serif' }}>
@@ -76,43 +74,8 @@ export function Home() {
           <StockChart rows={filtered as any[]} />
           <div style={{ height: 16 }} />
 
-          {/* Table */}
-          <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-            <thead>
-              <tr>
-                {columns.map((c) => (
-                  <th
-                    key={c}
-                    style={{
-                      textAlign: 'left',
-                      borderBottom: '1px solid #ddd',
-                      padding: '8px 12px',
-                      background: '#fafafa',
-                      position: 'sticky',
-                      top: 0,
-                    }}
-                  >
-                    {c}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row, i) => (
-                <tr key={i}>
-                  {columns.map((c) => (
-                    <td
-                      key={c}
-                      style={{ borderBottom: '1px solid #f0f0f0', padding: '8px 12px' }}
-                    >
-                      {String(row[c] ?? '')}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p style={{ marginTop: 12, color: '#666' }}>Rows: {filtered.length}</p>
+          {/* Editable SQL-backed Table */}
+          <EditableTable tradeCode={selectedCode || undefined} />
         </div>
       )}
     </div>
