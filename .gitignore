@@ -1,3 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Node / JS
+node_modules/
+dist/
+build/
+.parcel-cache/
+.eslintcache
+
+# OS/Editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Env
+.env
+.env.local
+backend/.env
+frontend/.env
+
+# SQLite DBs
+*.sqlite3
+*.db
+*.sqlite
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
