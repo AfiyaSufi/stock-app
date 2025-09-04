@@ -110,69 +110,67 @@ export function EditableTable({ tradeCode }: Props) {
 
   return (
     <div>
-      <div style={{ margin: '12px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
-        <button onClick={startAdd}>+ Add Row</button>
-        <label>
-          Page size:
-          <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))} style={{ marginLeft: 6 }}>
+      <div className="toolbar">
+        <button className="btn btn-primary btn-sm" onClick={startAdd}>+ Add Row</button>
+        <div className="field">
+          <label>Page size</label>
+          <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))}>
             {[10, 20, 50, 100].map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
+              <option key={n} value={n}>{n}</option>
             ))}
           </select>
-        </label>
-        <label>
-          Sort:
-          <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ marginLeft: 6 }}>
+        </div>
+        <div className="field">
+          <label>Sort</label>
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
             {['date', '-date', 'close', '-close', 'volume', '-volume'].map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
-        </label>
+        </div>
       </div>
 
       {loading && <p>Loading…</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            {columns.map((c) => (
-              <th key={c} style={{ textAlign: 'left', borderBottom: '1px solid #ddd', padding: '6px 8px', background: '#fafafa' }}>
-                {c}
-              </th>
-            ))}
-            <th style={{ width: 140 }}></th>
-          </tr>
-        </thead>
-      </table>
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
+              {columns.map((c) => (
+                <th key={c}>{c}</th>
+              ))}
+              <th style={{ width: 140 }}></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
 
       {editingId === 'new' && (
-        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+  <div className="table-wrap">
+  <table className="table">
           <tbody>
             <tr>
               {columns.map((c) => (
-                <td key={c} style={{ borderBottom: '1px solid #f0f0f0', padding: '4px 8px' }}>
+    <td key={c}>
                   <input
                     value={String(draft[c] ?? '')}
                     onChange={(e) => onDraftChange(c, e.target.value)}
-                    style={{ width: '100%' }}
+        style={{ width: '100%' }}
                   />
                 </td>
               ))}
               <td>
-                <button onClick={save} style={{ marginRight: 6 }}>Save</button>
-                <button onClick={cancel}>Cancel</button>
+    <button className="btn btn-primary btn-sm" onClick={save} style={{ marginRight: 6 }}>Save</button>
+    <button className="btn btn-ghost btn-sm" onClick={cancel}>Cancel</button>
               </td>
             </tr>
           </tbody>
-        </table>
+  </table>
+  </div>
       )}
 
-      <div ref={parentRef} style={{ height: 400, overflow: 'auto', position: 'relative' }}>
+    <div ref={parentRef} className="table-wrap" style={{ height: 400, position: 'relative' }}>
         <div style={{ height: rowVirtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((vi) => {
             const r = rows[vi.index]
@@ -181,11 +179,11 @@ export function EditableTable({ tradeCode }: Props) {
                 key={r.id ?? vi.index}
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${vi.start}px)` }}
               >
-                <table style={{ width: '100%' }}>
+        <table className="table" style={{ width: '100%' }}>
                   <tbody>
                     <tr>
                       {columns.map((c) => (
-                        <td key={c} style={{ borderBottom: '1px solid #f0f0f0', padding: '4px 8px' }}>
+            <td key={c}>
                           {editingId === r.id ? (
                             <input
                               value={String((draft as any)[c] ?? '')}
@@ -200,13 +198,13 @@ export function EditableTable({ tradeCode }: Props) {
                       <td>
                         {editingId === r.id ? (
                           <>
-                            <button onClick={save} style={{ marginRight: 6 }}>Save</button>
-                            <button onClick={cancel}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={save} style={{ marginRight: 6 }}>Save</button>
+              <button className="btn btn-ghost btn-sm" onClick={cancel}>Cancel</button>
                           </>
                         ) : (
                           <>
-                            <button onClick={() => startEdit(r)} style={{ marginRight: 6 }}>Edit</button>
-                            <button onClick={() => remove(r.id!)}>Delete</button>
+              <button className="btn btn-sm" onClick={() => startEdit(r)} style={{ marginRight: 6 }}>Edit</button>
+              <button className="btn btn-danger btn-sm" onClick={() => remove(r.id!)}>Delete</button>
                           </>
                         )}
                       </td>
@@ -218,10 +216,10 @@ export function EditableTable({ tradeCode }: Props) {
           })}
         </div>
       </div>
-      <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
-        <span>Page {page}</span>
-        <button onClick={() => setPage((p) => p + 1)}>Next</button>
+      <div className="toolbar" style={{ marginTop: 8 }}>
+        <button className="btn btn-sm" onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
+        <span className="subtle">Page {page}</span>
+        <button className="btn btn-sm" onClick={() => setPage((p) => p + 1)}>Next</button>
       </div>
     </div>
   )

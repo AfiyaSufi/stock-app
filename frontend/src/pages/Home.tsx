@@ -45,22 +45,23 @@ export function Home() {
   // columns no longer needed here; EditableTable defines its own columns
 
   return (
-    <div style={{ padding: 24, fontFamily: 'system-ui, Arial, sans-serif' }}>
-      <h1>Stocks</h1>
+    <div className="container">
+      <div className="header">
+        <div>
+          <div className="title">Stock Dashboard</div>
+          <div className="subtle">JSON data for charts; SQL-backed editable table</div>
+        </div>
+      </div>
       {loading && <p>Loading…</p>}
       {error && (
         <p style={{ color: 'red' }}>Error loading data: {error}</p>
       )}
       {!loading && !error && (
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <label>
-              Trade code:
-              <select
-                value={selectedCode}
-                onChange={(e) => setSelectedCode(e.target.value)}
-                style={{ marginLeft: 8 }}
-              >
+        <div>
+          <div className="toolbar">
+            <div className="field">
+              <label>Trade code</label>
+              <select value={selectedCode} onChange={(e) => setSelectedCode(e.target.value)}>
                 <option value="">All</option>
                 {tradeCodes.map((c) => (
                   <option key={c} value={c}>
@@ -68,19 +69,25 @@ export function Home() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
           </div>
 
-          {/* Chart */}
-          <StockChart rows={filtered as any[]} />
-          <div style={{ height: 16 }} />
+          <div className="grid grid-2">
+            <div className="card">
+              <div className="section-title">Price and volume</div>
+              <StockChart rows={filtered as any[]} />
+            </div>
+            <div className="card">
+              <div className="section-title">Extra insights</div>
+              <ExtraInsights rows={filtered as any[]} />
+            </div>
+          </div>
 
-          {/* Extra insights */}
-          <ExtraInsights rows={filtered as any[]} />
-          <div style={{ height: 16 }} />
-
-          {/* Editable SQL-backed Table */}
-          <EditableTable tradeCode={selectedCode || undefined} />
+          <div className="spacer" />
+          <div className="card">
+            <div className="section-title">Editable table</div>
+            <EditableTable tradeCode={selectedCode || undefined} />
+          </div>
         </div>
       )}
     </div>
