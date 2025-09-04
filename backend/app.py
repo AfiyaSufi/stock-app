@@ -37,6 +37,15 @@ def create_app() -> Flask:
         except json.JSONDecodeError as e:
             return jsonify({"error": f"Invalid JSON: {e}"}), 500
 
+    # Register SQL CRUD blueprint
+    try:
+        from routes import sql_bp  # local import to avoid circulars
+
+        app.register_blueprint(sql_bp)
+    except Exception as e:
+        # In dev, it's okay if SQL bits aren't ready yet
+        app.logger.debug(f"Skipping SQL blueprint registration: {e}")
+
     return app
 
 
