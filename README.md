@@ -109,17 +109,18 @@ Stock fields
 
 ## Tradeoffs and learnings
 
-- JSON-first made it quick to get a working UI and charts; migrating to SQL unlocked CRUD and performance.
-- Charting in tests requires jsdom shims (canvas + ResizeObserver) for Chart.js; added in test setup.
-- On Windows, CRLF line endings can trip Prettier; enforced LF in .prettierrc to keep lint clean.
-- Virtualizing table rows keeps DOM light with large datasets.
-- Indexing (trade_code, date) and server-side pagination are essential for snappy queries.
+- I started with the JSON file to move fast and show value quickly. It let me get the UI and chart on screen with almost no setup. The tradeoff is that it’s read‑only and can get slow as the file grows.
+- Switching to SQLite added real CRUD and faster queries. The cost was a bit more plumbing (models, importer, endpoints) and thinking about indexes.
+- Chart.js was a good fit: small, flexible, and works well with React. In tests you do need a canvas/ResizeObserver shim so jsdom doesn’t crash.
+- On Windows, line endings can be noisy. Enforcing LF with Prettier kept lint clean and diff noise low.
+- Virtualized rows kept the table smooth with lots of data; it’s a little more code than a plain table, but worth it for responsiveness.
+- An index on (trade_code, date) plus server‑side pagination made "list + filter" feel instant.
 
 ## Challenges
 
-- Handling numeric fields sometimes provided as strings with commas; normalized at the edge.
-- Coordinating dual axes (price vs volume) and readable ticks/labels.
-- Ensuring Jest runs smoothly with React 18 + SWC + automatic JSX runtime.
+- Some numbers came in as strings (often with commas). I cleaned them at the edges so both the chart and DB see real numbers.
+- Dual axes (price vs volume) can be cluttered if labels aren’t tuned. Tightening ticks and adding captions made them readable.
+- Jest + React 18 + SWC needed the automatic JSX runtime and a couple of shims (canvas, ResizeObserver) to run chart tests reliably.
 
 ## Tests and lint
 
