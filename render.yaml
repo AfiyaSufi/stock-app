@@ -6,7 +6,6 @@ services:
     name: stock-app-backend
     env: python
     plan: free
-    region: oregon
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app:app
@@ -20,28 +19,23 @@ services:
       - key: CORS_ORIGINS
         value: "*"
       - key: STOCK_APP_DB
-        value: /var/data/stock.db
-    disk:
-      name: data
-      mountPath: /var/data
-      sizeGB: 1
+  value: /tmp/stock.db
 
   - type: web
     name: stock-app-frontend
     env: static
     plan: free
-    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
         value: 20.14.0
-      - key: VITE_API_BASE_URL
+  - key: VITE_API_HOST
         fromService:
           type: web
           name: stock-app-backend
-          property: url
+          property: host
 
 # Optional: run one-off import after first deploy by opening a shell and running:
 #   python import_data.py

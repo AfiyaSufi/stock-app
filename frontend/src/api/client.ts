@@ -1,4 +1,6 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const host = import.meta.env.VITE_API_HOST
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || (host ? `https://${host}` : '')
 
 export async function fetchStocks(): Promise<any[]> {
   const res = await fetch(`${API_BASE_URL}/api/stocks`)
