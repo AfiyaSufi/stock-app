@@ -91,8 +91,11 @@ export function StockChart({ rows }: { rows: Row[] }) {
   }
 
   return (
-    <div style={{ width: '100%', height: 360 }}>
-      <Line data={data} options={options as any} />
+    <div>
+      <div style={{ width: '100%', height: 360 }}>
+        <Line data={data} options={options as any} />
+      </div>
+      <div className="caption">Line shows closing price (left axis). Bars show traded volume (right axis). Time on X.</div>
     </div>
   )
 }

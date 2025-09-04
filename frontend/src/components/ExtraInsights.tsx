@@ -215,23 +215,24 @@ export function ExtraInsights({ rows }: { rows: Row[] }) {
 
   return (
     <div>
-      <h2 style={{ marginTop: 24 }}>Extra insights</h2>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-        <label>
-          From:
-          <input type="date" value={rangeFrom} onChange={(e) => setFrom(e.target.value)} style={{ marginLeft: 6 }} />
-        </label>
-        <label>
-          To:
-          <input type="date" value={rangeTo} onChange={(e) => setTo(e.target.value)} style={{ marginLeft: 6 }} />
-        </label>
+      <div className="toolbar" style={{ marginTop: 0 }}>
+        <div className="field">
+          <label>From</label>
+          <input type="date" value={rangeFrom} onChange={(e) => setFrom(e.target.value)} />
+        </div>
+        <div className="field">
+          <label>To</label>
+          <input type="date" value={rangeTo} onChange={(e) => setTo(e.target.value)} />
+        </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
         <div style={{ width: '100%', height: 320 }}>
           <Line data={maData} options={maOptions as any} />
+          <div className="caption">Close with 7-day and 30-day moving averages (time on X, price on Y).</div>
         </div>
         <div style={{ width: '100%', height: 260 }}>
           <Bar data={volData} options={volOptions as any} />
+          <div className="caption">Histogram of daily traded volume (bucketed into 10 ranges).</div>
         </div>
       </div>
     </div>
