@@ -135,53 +135,57 @@ Frontend
 - npm run lint
 - npm run ci  (runs lint + tests)
 
-## Deploying to Render
+## Deploying to Render (free tier)
 
-This repo includes a `render.yaml` blueprint to deploy both services (backend API and static frontend).
+This repo includes a `render.yaml` blueprint that creates two services: a Python backend and a static frontend. Follow these steps for a smooth deploy on the free tier.
 
-1) Push the repo to GitHub (ensure `render.yaml` is at the repo root).
-2) In Render: New → Blueprint → select this repo/branch → Apply.
-3) Wait for two services to go Live:
-	 - Backend (web, Python)
-		 - Build: `pip install -r requirements.txt`
-		 - Start: `gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app:app`
-		 - Env: `FLASK_ENV=production`, `FLASK_DEBUG=0`, `CORS_ORIGINS=*`, `PYTHON_VERSION`, and `STOCK_APP_DB=/tmp/stock.db` (free tier)
-	 - Frontend (web, static)
-		 - Build: `npm install && npm run build`
-		 - Publish: `dist`
-		 - Env: `NODE_VERSION` and `VITE_API_HOST` (auto-wired to the backend host)
+1) Apply the blueprint
+- Push to GitHub with `render.yaml` at repo root.
+- Render → New → Blueprint → pick this repo/branch → Apply.
+- You should see two services:
+	- Backend (web, Python)
+		- Build: `pip install -r requirements.txt`
+		- Start: `python import_data.py && gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app:app`
+		- Env: `FLASK_ENV=production`, `FLASK_DEBUG=0`, `PYTHON_VERSION`, `STOCK_APP_DB=/tmp/stock.db`
+		- Importer runs automatically on start to seed SQLite (no shell needed on free tier).
+	- Frontend (web, static)
+		- Build: `npm install && npm run build`
+		- Publish: `dist`
+		- Env: `NODE_VERSION` and one of:
+			- `VITE_API_BASE_URL = https://<your-backend>.onrender.com` (recommended), or
+			- `VITE_API_HOST = <your-backend>.onrender.com` (host only, no scheme)
 
-Verify
-- Backend: `/api/health`, `/api/stocks`, `/api/sql/stocks`.
-- Frontend: should load and call the backend automatically.
+2) CORS and env vars
+- Backend → Environment: set `CORS_ORIGINS = https://<your-frontend>.onrender.com` (exact origin).
+- Frontend → Environment: prefer `VITE_API_BASE_URL` (full URL). If you use `VITE_API_HOST`, do not include `https://`.
+- After changing frontend env vars, click “Clear build cache & deploy” so Vite rebakes them into the bundle.
 
-Data on free tier (SQLite)
-- The DB path is `/tmp/stock.db` (ephemeral). After each deploy/restart, import data:
-	- Render → Backend service → Shell → run:
-		- `python import_data.py`
-	- Data persists only until the next deploy/restart on free tier.
+3) Warm‑up order (free tier)
+- Free services can sleep. First hit the backend to wake it and allow seeding:
+	- `https://<your-backend>.onrender.com/api/health`
+- Then open the frontend URL. Give it ~10–20s after the health check if just deployed.
 
-Make data persistent (paid plan)
-- Upgrade the backend plan to support disks, then in `render.yaml`:
-	- Set `STOCK_APP_DB=/var/data/stock.db` under backend `envVars`.
-	- Add a disk block under the backend service (example):
-		- `disk:` name: `data`, mountPath: `/var/data`, sizeGB: `1+`.
-	- Redeploy once, then run `python import_data.py` in the backend shell to seed the DB.
+4) Verify
+- Backend: `/api/health`, `/api/stocks`, `/api/sql/stocks`
+- Frontend: open the site and check DevTools → Network; requests should go to the backend domain over HTTPS.
 
-Alternative: managed Postgres
-- You can switch to Render PostgreSQL for durable storage. Update the app to use a Postgres `DATABASE_URL` and migrate/import the dataset accordingly.
+5) If the frontend shows “TypeError: Failed to fetch”
+- DevTools → Network → click the failing request:
+	- Request URL = frontend domain → API URL wasn’t baked; set `VITE_API_BASE_URL` and redeploy (clear cache).
+	- Request URL = backend domain but blocked by CORS → set `CORS_ORIGINS` to your exact frontend origin and redeploy backend.
+	- Request URL starts with `https://https://` → you put a full URL into `VITE_API_HOST`; remove scheme or switch to `VITE_API_BASE_URL`.
+	- Mixed content (http vs https) → use HTTPS URLs for both services.
 
-## Screenshots (optional)
+6) Data on free tier (SQLite)
+- DB lives at `/tmp/stock.db` and is ephemeral. The start command auto‑runs `import_data.py` so tables/data exist on each start.
 
-Drop PNGs into docs/screenshots and reference them here, for example:
+7) Make data persistent (paid plan)
+- Upgrade backend to a plan with disks, then change:
+	- `STOCK_APP_DB=/var/data/stock.db` and add a `disk` block (mount `/var/data`).
+	- Redeploy once; remove auto‑import at start if you don’t want it to overwrite.
 
-![Home - Price and Volume](docs/screenshots/home-top-chart.png)
-![Extra Insights](docs/screenshots/extra-insights.png)
-![Editable Table](docs/screenshots/editable-table.png)
-
-## Branching and snapshots
-
-See docs/BRANCHING.md for how jsonModel and sqlModel are tracked via branches/tags.
+Alternative: Render PostgreSQL
+- Use a managed DB and update the app to read `DATABASE_URL`; migrate/import accordingly.
 
 ## Troubleshooting
 
