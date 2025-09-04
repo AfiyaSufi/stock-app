@@ -19,7 +19,7 @@ services:
       - key: CORS_ORIGINS
         value: "*"
       - key: STOCK_APP_DB
-  value: /tmp/stock.db
+        value: /tmp/stock.db
 
   - type: web
     name: stock-app-frontend
@@ -31,7 +31,7 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.14.0
-  - key: VITE_API_HOST
+      - key: VITE_API_HOST
         fromService:
           type: web
           name: stock-app-backend
