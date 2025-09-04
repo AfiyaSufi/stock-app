@@ -33,11 +33,7 @@ stock-app/
 │   ├── jest.config.cjs     # Jest + SWC + jsdom
 │   ├── eslint.config.js    # ESLint v9 flat config
 │   └── TESTING.md          # Frontend testing notes
-├── stock_market_data.json  # Source dataset
-└── docs/
-	 ├── BRANCHING.md
-	 ├── PERFORMANCE.md
-	 └── screenshots/        # Drop images for README here (optional)
+├── stock_market_data.json  # Source dataset     
 ```
 
 ## Running: jsonModel (read-only)
