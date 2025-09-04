@@ -135,6 +135,42 @@ Frontend
 - npm run lint
 - npm run ci  (runs lint + tests)
 
+## Deploying to Render
+
+This repo includes a `render.yaml` blueprint to deploy both services (backend API and static frontend).
+
+1) Push the repo to GitHub (ensure `render.yaml` is at the repo root).
+2) In Render: New → Blueprint → select this repo/branch → Apply.
+3) Wait for two services to go Live:
+	 - Backend (web, Python)
+		 - Build: `pip install -r requirements.txt`
+		 - Start: `gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT app:app`
+		 - Env: `FLASK_ENV=production`, `FLASK_DEBUG=0`, `CORS_ORIGINS=*`, `PYTHON_VERSION`, and `STOCK_APP_DB=/tmp/stock.db` (free tier)
+	 - Frontend (web, static)
+		 - Build: `npm install && npm run build`
+		 - Publish: `dist`
+		 - Env: `NODE_VERSION` and `VITE_API_HOST` (auto-wired to the backend host)
+
+Verify
+- Backend: `/api/health`, `/api/stocks`, `/api/sql/stocks`.
+- Frontend: should load and call the backend automatically.
+
+Data on free tier (SQLite)
+- The DB path is `/tmp/stock.db` (ephemeral). After each deploy/restart, import data:
+	- Render → Backend service → Shell → run:
+		- `python import_data.py`
+	- Data persists only until the next deploy/restart on free tier.
+
+Make data persistent (paid plan)
+- Upgrade the backend plan to support disks, then in `render.yaml`:
+	- Set `STOCK_APP_DB=/var/data/stock.db` under backend `envVars`.
+	- Add a disk block under the backend service (example):
+		- `disk:` name: `data`, mountPath: `/var/data`, sizeGB: `1+`.
+	- Redeploy once, then run `python import_data.py` in the backend shell to seed the DB.
+
+Alternative: managed Postgres
+- You can switch to Render PostgreSQL for durable storage. Update the app to use a Postgres `DATABASE_URL` and migrate/import the dataset accordingly.
+
 ## Screenshots (optional)
 
 Drop PNGs into docs/screenshots and reference them here, for example:
