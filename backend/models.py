@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Integer, String, Float, BigInteger
+from sqlalchemy import Integer, String, Float, BigInteger, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -10,6 +10,10 @@ class Base(DeclarativeBase):
 
 class Stock(Base):
     __tablename__ = "stocks"
+    __table_args__ = (
+        # Composite index to speed filtering by trade_code and sorting by date
+        Index("ix_stocks_trade_code_date", "trade_code", "date"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     # JSON fields

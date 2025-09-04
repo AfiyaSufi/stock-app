@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import type { StockDTO } from '../api/stocks'
 import { createStock, deleteStock, listStocks, updateStock } from '../api/stocks'
 
@@ -99,6 +100,14 @@ export function EditableTable({ tradeCode }: Props) {
     }
   }
 
+  const parentRef = useMemo(() => ({ current: null as unknown as HTMLDivElement }), [])
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 40,
+    overscan: 10,
+  })
+
   return (
     <div>
       <div style={{ margin: '12px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -139,8 +148,11 @@ export function EditableTable({ tradeCode }: Props) {
             <th style={{ width: 140 }}></th>
           </tr>
         </thead>
-        <tbody>
-          {editingId === 'new' && (
+      </table>
+
+      {editingId === 'new' && (
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <tbody>
             <tr>
               {columns.map((c) => (
                 <td key={c} style={{ borderBottom: '1px solid #f0f0f0', padding: '4px 8px' }}>
@@ -156,40 +168,56 @@ export function EditableTable({ tradeCode }: Props) {
                 <button onClick={cancel}>Cancel</button>
               </td>
             </tr>
-          )}
+          </tbody>
+        </table>
+      )}
 
-          {rows.map((r) => (
-            <tr key={r.id}>
-              {columns.map((c) => (
-                <td key={c} style={{ borderBottom: '1px solid #f0f0f0', padding: '4px 8px' }}>
-                  {editingId === r.id ? (
-                    <input
-                      value={String((draft as any)[c] ?? '')}
-                      onChange={(e) => onDraftChange(c as any, e.target.value)}
-                      style={{ width: '100%' }}
-                    />
-                  ) : (
-                    String((r as any)[c] ?? '')
-                  )}
-                </td>
-              ))}
-              <td>
-                {editingId === r.id ? (
-                  <>
-                    <button onClick={save} style={{ marginRight: 6 }}>Save</button>
-                    <button onClick={cancel}>Cancel</button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => startEdit(r)} style={{ marginRight: 6 }}>Edit</button>
-                    <button onClick={() => remove(r.id!)}>Delete</button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div ref={parentRef} style={{ height: 400, overflow: 'auto', position: 'relative' }}>
+        <div style={{ height: rowVirtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
+          {rowVirtualizer.getVirtualItems().map((vi) => {
+            const r = rows[vi.index]
+            return (
+              <div
+                key={r.id ?? vi.index}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${vi.start}px)` }}
+              >
+                <table style={{ width: '100%' }}>
+                  <tbody>
+                    <tr>
+                      {columns.map((c) => (
+                        <td key={c} style={{ borderBottom: '1px solid #f0f0f0', padding: '4px 8px' }}>
+                          {editingId === r.id ? (
+                            <input
+                              value={String((draft as any)[c] ?? '')}
+                              onChange={(e) => onDraftChange(c as any, e.target.value)}
+                              style={{ width: '100%' }}
+                            />
+                          ) : (
+                            String((r as any)[c] ?? '')
+                          )}
+                        </td>
+                      ))}
+                      <td>
+                        {editingId === r.id ? (
+                          <>
+                            <button onClick={save} style={{ marginRight: 6 }}>Save</button>
+                            <button onClick={cancel}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => startEdit(r)} style={{ marginRight: 6 }}>Edit</button>
+                            <button onClick={() => remove(r.id!)}>Delete</button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )
+          })}
+        </div>
+      </div>
       <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
         <span>Page {page}</span>

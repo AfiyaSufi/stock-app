@@ -45,6 +45,7 @@ def parse_int(val: Any) -> Optional[int]:
 @sql_bp.get("/stocks")
 def list_stocks():
     trade_code = request.args.get("trade_code")
+    q = request.args.get("q")  # partial match on trade_code
     page = max(int(request.args.get("page", 1) or 1), 1)
     page_size = int(request.args.get("page_size", 50) or 50)
     page_size = max(1, min(page_size, 500))
@@ -73,6 +74,9 @@ def list_stocks():
         stmt = select(Stock)
         if trade_code:
             stmt = stmt.where(Stock.trade_code == trade_code)
+        if q:
+            qv = f"%{q.lower()}%"
+            stmt = stmt.where(func.lower(Stock.trade_code).like(qv))
 
         total = s.scalar(select(func.count()).select_from(stmt.subquery())) or 0
 
@@ -91,6 +95,7 @@ def list_stocks():
                 "total": total,
                 "sort": sort,
                 "trade_code": trade_code,
+                "q": q,
             }
         )
 
