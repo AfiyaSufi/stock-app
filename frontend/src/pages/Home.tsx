@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchStocks } from '../api/client'
 import { StockChart } from '../components/StockChart'
 import { EditableTable } from '../components/EditableTable'
+import { ExtraInsights } from '../components/ExtraInsights'
 
 type StockRow = Record<string, string | number | null>
 
@@ -72,6 +73,10 @@ export function Home() {
 
           {/* Chart */}
           <StockChart rows={filtered as any[]} />
+          <div style={{ height: 16 }} />
+
+          {/* Extra insights */}
+          <ExtraInsights rows={filtered as any[]} />
           <div style={{ height: 16 }} />
 
           {/* Editable SQL-backed Table */}
