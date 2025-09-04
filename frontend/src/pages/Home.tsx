@@ -49,13 +49,10 @@ export function Home() {
       <div className="header">
         <div>
           <div className="title">Stock Dashboard</div>
-          <div className="subtle">JSON data for charts; SQL-backed editable table</div>
         </div>
       </div>
       {loading && <p>Loading…</p>}
-      {error && (
-        <p style={{ color: 'red' }}>Error loading data: {error}</p>
-      )}
+      {error && <p style={{ color: 'red' }}>Error loading data: {error}</p>}
       {!loading && !error && (
         <div>
           <div className="toolbar">
@@ -72,15 +69,17 @@ export function Home() {
             </div>
           </div>
 
-          <div className="grid grid-2">
-            <div className="card">
-              <div className="section-title">Price and volume</div>
-              <StockChart rows={filtered as any[]} />
-            </div>
-            <div className="card">
-              <div className="section-title">Extra insights</div>
-              <ExtraInsights rows={filtered as any[]} />
-            </div>
+          {/* Top big card: Price & Volume */}
+          <div className="card" style={{ padding: 20 }}>
+            <div className="section-title">Price and volume</div>
+            <StockChart rows={filtered as any[]} height={440} />
+          </div>
+
+          {/* Below: Extra insights stay as their own section/cards */}
+          <div className="spacer" />
+          <div className="card">
+            <div className="section-title">Extra insights</div>
+            <ExtraInsights rows={filtered as any[]} />
           </div>
 
           <div className="spacer" />

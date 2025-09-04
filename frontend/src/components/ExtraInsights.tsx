@@ -56,8 +56,14 @@ export function ExtraInsights({ rows }: { rows: Row[] }) {
       .sort((a, b) => a._date.getTime() - b._date.getTime())
   }, [rows])
 
-  const defaultFrom = useMemo(() => (sorted[0]?._date ? formatDateInput(sorted[0]._date) : ''), [sorted])
-  const defaultTo = useMemo(() => (sorted.at(-1)?._date ? formatDateInput(sorted.at(-1)!._date) : ''), [sorted])
+  const defaultFrom = useMemo(
+    () => (sorted[0]?._date ? formatDateInput(sorted[0]._date) : ''),
+    [sorted],
+  )
+  const defaultTo = useMemo(
+    () => (sorted.at(-1)?._date ? formatDateInput(sorted.at(-1)!._date) : ''),
+    [sorted],
+  )
 
   const [rangeFrom, rangeTo] = [from || defaultFrom, to || defaultTo]
 
@@ -189,7 +195,11 @@ export function ExtraInsights({ rows }: { rows: Row[] }) {
     plugins: { legend: { position: 'top' as const } },
     scales: {
       x: { type: 'time' as const, time: { unit: 'day' as const } },
-      y: { type: 'linear' as const, position: 'left' as const, title: { display: true, text: 'Price' } },
+      y: {
+        type: 'linear' as const,
+        position: 'left' as const,
+        title: { display: true, text: 'Price' },
+      },
     },
   }
 
@@ -231,7 +241,9 @@ export function ExtraInsights({ rows }: { rows: Row[] }) {
           <div style={{ width: '100%', height: 320 }}>
             <Line data={maData} options={maOptions as any} />
           </div>
-          <div className="caption">Close with 7-day and 30-day moving averages (time on X, price on Y).</div>
+          <div className="caption">
+            Close with 7-day and 30-day moving averages (time on X, price on Y).
+          </div>
         </div>
         <div className="card">
           <div className="section-title">Volume histogram</div>

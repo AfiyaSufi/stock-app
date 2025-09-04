@@ -25,7 +25,12 @@ ChartJS.register(
 
 type Row = Record<string, any>
 
-export function StockChart({ rows }: { rows: Row[] }) {
+type StockChartProps = {
+  rows: Row[]
+  height?: number
+}
+
+export function StockChart({ rows, height = 360 }: StockChartProps) {
   // Normalize and sort by date asc
   const points = [...rows]
     .filter((r) => r.date && r.close && r.volume)
@@ -34,7 +39,9 @@ export function StockChart({ rows }: { rows: Row[] }) {
       close: Number(String(r.close).replace(/,/g, '')),
       volume: Number(String(r.volume).replace(/,/g, '')),
     }))
-    .filter((p) => !Number.isNaN(p.close) && !Number.isNaN(p.volume) && !Number.isNaN(p.date.getTime()))
+    .filter(
+      (p) => !Number.isNaN(p.close) && !Number.isNaN(p.volume) && !Number.isNaN(p.date.getTime()),
+    )
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 
   const data = {
@@ -83,7 +90,11 @@ export function StockChart({ rows }: { rows: Row[] }) {
         suggestedMin: 0,
         ticks: {
           callback: (v: any) => {
-            try { return Number(v).toLocaleString() } catch { return v }
+            try {
+              return Number(v).toLocaleString()
+            } catch {
+              return v
+            }
           },
         },
       },
@@ -95,7 +106,11 @@ export function StockChart({ rows }: { rows: Row[] }) {
         beginAtZero: true,
         ticks: {
           callback: (v: any) => {
-            try { return Number(v).toLocaleString() } catch { return v }
+            try {
+              return Number(v).toLocaleString()
+            } catch {
+              return v
+            }
           },
         },
       },
@@ -104,10 +119,12 @@ export function StockChart({ rows }: { rows: Row[] }) {
 
   return (
     <div>
-      <div style={{ width: '100%', height: 360 }}>
+      <div style={{ width: '100%', height }}>
         <Line data={data} options={options as any} />
       </div>
-      <div className="caption">Line shows closing price (left axis). Bars show traded volume (right axis). Time on X.</div>
+      <div className="caption">
+        Line shows closing price (left axis). Bars show traded volume (right axis). Time on X.
+      </div>
     </div>
   )
 }

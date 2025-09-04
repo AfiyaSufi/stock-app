@@ -36,10 +36,12 @@ export function EditableTable({ tradeCode }: Props) {
 
   useEffect(() => {
     load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tradeCode, page, pageSize, sort])
 
-  const columns = useMemo(() => ['date', 'trade_code', 'high', 'low', 'open', 'close', 'volume'] as const, [])
+  const columns = useMemo(
+    () => ['date', 'trade_code', 'high', 'low', 'open', 'close', 'volume'] as const,
+    [],
+  )
 
   const [editingId, setEditingId] = useState<number | 'new' | null>(null)
   const [draft, setDraft] = useState<Partial<StockDTO>>({})
@@ -51,7 +53,15 @@ export function EditableTable({ tradeCode }: Props) {
 
   function startAdd() {
     setEditingId('new')
-    setDraft({ date: '', trade_code: '', high: null, low: null, open: null, close: null, volume: null })
+    setDraft({
+      date: '',
+      trade_code: '',
+      high: null,
+      low: null,
+      open: null,
+      close: null,
+      volume: null,
+    })
   }
 
   function cancel() {
@@ -111,12 +121,16 @@ export function EditableTable({ tradeCode }: Props) {
   return (
     <div>
       <div className="toolbar">
-        <button className="btn btn-primary btn-sm" onClick={startAdd}>+ Add Row</button>
+        <button className="btn btn-primary btn-sm" onClick={startAdd}>
+          + Add Row
+        </button>
         <div className="field">
           <label>Page size</label>
           <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))}>
             {[10, 20, 50, 100].map((n) => (
-              <option key={n} value={n}>{n}</option>
+              <option key={n} value={n}>
+                {n}
+              </option>
             ))}
           </select>
         </div>
@@ -124,7 +138,9 @@ export function EditableTable({ tradeCode }: Props) {
           <label>Sort</label>
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
             {['date', '-date', 'close', '-close', 'volume', '-volume'].map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
           </select>
         </div>
@@ -147,43 +163,57 @@ export function EditableTable({ tradeCode }: Props) {
       </div>
 
       {editingId === 'new' && (
-  <div className="table-wrap">
-  <table className="table">
-          <tbody>
-            <tr>
-              {columns.map((c) => (
-    <td key={c}>
-                  <input
-                    value={String(draft[c] ?? '')}
-                    onChange={(e) => onDraftChange(c, e.target.value)}
-        style={{ width: '100%' }}
-                  />
+        <div className="table-wrap">
+          <table className="table">
+            <tbody>
+              <tr>
+                {columns.map((c) => (
+                  <td key={c}>
+                    <input
+                      value={String(draft[c] ?? '')}
+                      onChange={(e) => onDraftChange(c, e.target.value)}
+                      style={{ width: '100%' }}
+                    />
+                  </td>
+                ))}
+                <td>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={save}
+                    style={{ marginRight: 6 }}
+                  >
+                    Save
+                  </button>
+                  <button className="btn btn-ghost btn-sm" onClick={cancel}>
+                    Cancel
+                  </button>
                 </td>
-              ))}
-              <td>
-    <button className="btn btn-primary btn-sm" onClick={save} style={{ marginRight: 6 }}>Save</button>
-    <button className="btn btn-ghost btn-sm" onClick={cancel}>Cancel</button>
-              </td>
-            </tr>
-          </tbody>
-  </table>
-  </div>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       )}
 
-    <div ref={parentRef} className="table-wrap" style={{ height: 400, position: 'relative' }}>
+      <div ref={parentRef} className="table-wrap" style={{ height: 400, position: 'relative' }}>
         <div style={{ height: rowVirtualizer.getTotalSize(), width: '100%', position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((vi) => {
             const r = rows[vi.index]
             return (
               <div
                 key={r.id ?? vi.index}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${vi.start}px)` }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${vi.start}px)`,
+                }}
               >
-        <table className="table" style={{ width: '100%' }}>
+                <table className="table" style={{ width: '100%' }}>
                   <tbody>
                     <tr>
                       {columns.map((c) => (
-            <td key={c}>
+                        <td key={c}>
                           {editingId === r.id ? (
                             <input
                               value={String((draft as any)[c] ?? '')}
@@ -198,13 +228,29 @@ export function EditableTable({ tradeCode }: Props) {
                       <td>
                         {editingId === r.id ? (
                           <>
-              <button className="btn btn-primary btn-sm" onClick={save} style={{ marginRight: 6 }}>Save</button>
-              <button className="btn btn-ghost btn-sm" onClick={cancel}>Cancel</button>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={save}
+                              style={{ marginRight: 6 }}
+                            >
+                              Save
+                            </button>
+                            <button className="btn btn-ghost btn-sm" onClick={cancel}>
+                              Cancel
+                            </button>
                           </>
                         ) : (
                           <>
-              <button className="btn btn-sm" onClick={() => startEdit(r)} style={{ marginRight: 6 }}>Edit</button>
-              <button className="btn btn-danger btn-sm" onClick={() => remove(r.id!)}>Delete</button>
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => startEdit(r)}
+                              style={{ marginRight: 6 }}
+                            >
+                              Edit
+                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => remove(r.id!)}>
+                              Delete
+                            </button>
                           </>
                         )}
                       </td>
@@ -217,9 +263,13 @@ export function EditableTable({ tradeCode }: Props) {
         </div>
       </div>
       <div className="toolbar" style={{ marginTop: 8 }}>
-        <button className="btn btn-sm" onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</button>
+        <button className="btn btn-sm" onClick={() => setPage((p) => Math.max(1, p - 1))}>
+          Prev
+        </button>
         <span className="subtle">Page {page}</span>
-        <button className="btn btn-sm" onClick={() => setPage((p) => p + 1)}>Next</button>
+        <button className="btn btn-sm" onClick={() => setPage((p) => p + 1)}>
+          Next
+        </button>
       </div>
     </div>
   )
